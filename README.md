@@ -16,7 +16,7 @@ Seluruh alur analisis tersaji secara berurutan dan dapat direproduksi langsung m
 6. [Baseline Modeling (Logistic Regression & Random Forest)](#6-baseline-modeling-logistic-regression--random-forest)
 7. [Eksplorasi Kandidat Model Tambahan (Decision Tree)](#7-eksplorasi-kandidat-model-tambahan-decision-tree)
 8. [Audit Strategi Validasi & Uji Kestabilan Model (Milestone Pertemuan 5)](#8-audit-strategi-validasi--uji-kestabilan-model-milestone-pertemuan-5)
-9. [Diagnosis Model, Seleksi Fitur, & Analisis Galat (Modul W07)](#9-diagnosis-model-seleksi-fitur--analisis-galat-modul-w07)
+9. [Diagnosis Model, Seleksi Fitur, & Analisis Galat](#9-diagnosis-model-seleksi-fitur--analisis-galat)
 10. [Evaluasi Komprehensif: Benchmark Train vs Test Seluruh Model](#10-evaluasi-komprehensif-benchmark-train-vs-test-seluruh-model)
 11. [Tata Kelola Pemodelan (Model Governance), Kesimpulan Akhir, & Rencana Lanjutan](#11-tata-kelola-pemodelan-model-governance-kesimpulan-akhir--rencana-lanjutan)
 
@@ -159,26 +159,43 @@ Eksperimen validasi silang Stratified 5-Fold Cross-Validation dijalankan pada da
 
 ---
 
-## 9. Diagnosis Model, Seleksi Fitur, & Analisis Galat (Modul W07)
+## 9. Diagnosis Model, Seleksi Fitur, & Analisis Galat
 
 ### 9.1 Model Comparison & Pembuktian Bahaya *Accuracy Paradox*
 * **DummyClassifier (Most Frequent):** Menghasilkan **Akurasi 64.16%** dengan **ROC-AUC murni acak (0.5000)** dan **Recall Kelas 0 = 0.00%**.
 * **Implikasi Finansial:** Membuktikan secara empiris bahaya *Accuracy Paradox* di perbankan: model naif tampak memiliki akurasi lumayan (64.16%), namun meloloskan 100% nasabah berisiko gagal bayar yang berakibat pada kebangkrutan modal perbankan akibat kredit macet (*Non-Performing Loan*).
 
 ### 9.2 Kerangka Seleksi Fitur: Gini Importance vs Permutation Feature Importance (PFI)
-Pengujian Permutation Feature Importance dilakukan pada 53 fitur hasil rekayasa dan one-hot encoding terhadap data uji:
-1. **Credit_Score**: Pilar penentu paling masif (**PFI = 0.1557** | Gini = 0.3197). Pengacakan nilai Credit_Score meruntuhkan performa diskriminasi model secara dramatis.
-2. **Loan_Amount_Requested**: Kontributor sekunder (**PFI = 0.0078** | Gini = 0.1796).
-3. **Age**: Pengaruh marjinal (**PFI = 0.0002** | Gini = 0.0451).
-4. **50 Fitur Lainnya**: Memiliki skor PFI mendekati nol ($\le 0.0001$).
-* **Insight:** Gini Importance bias terhadap fitur kontinu berkardinalitas tinggi, sementara PFI memberikan pembuktian kausalitas riil pada *unseen data*.
+
+Pengujian Permutation Feature Importance (PFI) dijalankan dengan 10 repetisi pengacakan pada data uji (*hold-out test set*, 10.400 sampel) untuk memverifikasi kontribusi objektif ke-53 fitur (24 numerik + 29 kategori one-hot):
+
+#### Tabel Top 10 Fitur Hasil Evaluasi Feature Importance:
+| Peringkat | Fitur | Gini Importance (MDI) | Permutation Importance (PFI) | Permutation Std | Kategori Sinyal & Peran |
+| :---: | :--- | :---: | :---: | :---: | :--- |
+| **1** | **Credit_Score** | 0.2620 | **0.1092** | ± 0.0032 | Driver Utama Dominan (~10.92% degradasi skor) |
+| **2** | **Loan_Amount_Requested** | 0.1882 | **0.0146** | ± 0.0016 | Driver Sekunder (~1.46% degradasi skor) |
+| **3** | **Age** | 0.0426 | **0.0010** | ± 0.0003 | Sinyal Demografis Minor |
+| **4** | **Credit_Risk_Factor** | 0.0777 | **0.0001** | ± 0.0001 | Fitur Rekayasa (Indikasi Bias MDI) |
+| **5** | **Monthly_Expenses** | 0.0098 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+| **6** | **Transaction_Frequency** | 0.0054 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+| **7** | **Existing_Loans** | 0.0016 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+| **8** | **Outstanding_Debt** | 0.0082 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+| **9** | **Total_Existing_Loan_Amount** | 0.0082 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+| **10** | **Loan_History** | 0.0008 | **0.0000** | ± 0.0000 | Penyesuai Marjinal |
+
+#### Temuan Analisis & Interpretasi:
+1. **Credit_Score:** Pilar penentu paling masif (**PFI = 0.1092** | Gini = 0.2620). Pengacakan nilai `Credit_Score` meruntuhkan performa diskriminasi model secara dramatis sebesar ~10.92%.
+2. **Loan_Amount_Requested:** Kontributor sekunder (**PFI = 0.0146** | Gini = 0.1882).
+3. **Age:** Pengaruh demografis marjinal namun terukur secara stabil (**PFI = 0.0010** | Gini = 0.0426).
+4. **Pembuktian Empiris Bias Gini:** Gini Importance menempatkan fitur interaksi rekayasa `Credit_Risk_Factor` di peringkat ke-3 (Gini = 0.0777). Namun, evaluasi PFI pada data uji membuktikan kontribusi kausalitas riilnya hampir dapat diabaikan (PFI = 0.0001), memvalidasi kecenderungan MDI yang membesar-besarkan fitur kontinu.
+5. **49 Fitur Lainnya:** Memiliki skor PFI mendekati nol ($\le 0.0000$). Hal ini membuktikan bahwa batas klasifikasi Random Forest bertumpu kuat pada tritunggal `Credit_Score`, `Loan_Amount_Requested`, dan `Age`.
 
 ### 9.3 Diagnosis Bias-Variance (Learning Curve & Validation Curve)
 1. **Learning Curve:** Train ROC-AUC berada di kisaran ~0.975–0.995 sementara Validation ROC-AUC mendatar di ~0.818 dari 2.500 hingga 27.000 sampel latih. Pola ini mengindikasikan karakteristik **High Variance (Overfitting)** di mana pohon acak menghafal data latih.
 2. **Validation Curve (max_depth):** Peningkatan kedalaman pohon di atas 8 melesatkan performa latih mendekati 1.0, namun skor validasi mengalami saturasi (*plateau*) di kisaran **0.820**.
 * **Rekomendasi Arsitektur:** Titik optimal regulasi kedalaman pohon (*sweet spot*) berada di rentang **max_depth=6 hingga max_depth=8**.
 
-### 9.4 Pembedahan Galat & Laporan Error Analysis (Format Baku Halaman 41–42)
+### 9.4 Pembedahan Galat & Laporan Error Analysis
 Dari total **10.400 data uji**, Random Forest menghasilkan **1.549 galat prediksi (Error Rate = 14.89%)**:
 * **False Positives (FP): 1.088 kasus** (Nasabah macet yang keliru disetujui, risiko kerugian kredit).
 * **False Negatives (FN): 461 kasus** (Nasabah layak yang keliru ditolak, risiko kehilangan bunga).
@@ -189,7 +206,7 @@ Dari total **10.400 data uji**, Random Forest menghasilkan **1.549 galat prediks
 | **1. Ketidakcukupan Interaksi Likuiditas Kas** | **1.241** | **80.12%** | Beban pengeluaran bulanan sangat tinggi terhadap sisa dana bebas dengan tenor pendek. Diperlukan fitur interaksi likuiditas multi-tahap. |
 | **2. Kontradiksi Label Sintetis (Noise)** | **247** | **15.95%** | Profil finansial prima (Credit_Score tinggi & utang rendah) namun ditolak secara acak oleh generator data sintetis. |
 | **3. Outlier Finansial Ekstrem** | **60** | **3.87%** | Nilai pendapatan atau rasio utang di luar batas IQR 3.0x yang mengacaukan estimasi probabilitas pohon keputusan. |
-| **4. Kasus Perbatasan (Borderline)** | **1** | **0.06%** | Probabilitas prediksi berada di ambang ketidakpastian tipis (.42 \le p \le 0.58$). Distribusi probabilitas model cenderung bimodal tegas. |
+| **4. Kasus Perbatasan (Borderline)** | **1** | **0.06%** | Probabilitas prediksi berada di ambang ketidakpastian tipis ($0.42 \le p \le 0.58$). Distribusi probabilitas model cenderung bimodal tegas. |
 
 ---
 
@@ -227,11 +244,11 @@ _est=100, depth=12, balanced | 0.8173 ± 0.0032 | 0.8511 | 0.8200 | 0.8476 | Ens
 
 ---
 
-### 11.2 Model Card Standar Industri (W07 Template)
+### 11.2 Model Card Standar Industri
 
 #### Model Details
 - **Pengembang:** Tim Proyek Machine Learning.
-- **Tanggal Rilis:** November 2026 (Milestone Modul W07).
+- **Tanggal Rilis:** November 2026.
 - **Versi:** 1.0.0.
 - **Arsitektur:** Random Forest Classifier & Hist Gradient Boosting Classifier (scikit-learn 1.3+).
 

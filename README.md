@@ -41,6 +41,11 @@ Membangun sistem pendukung keputusan otomatis (*credit underwriting decision sup
 
 Seluruh eksperimen telah dirancang secara modular dan dapat direproduksi secara mandiri (*end-to-end reproducible*).
 
+> [!IMPORTANT]
+> **Rekomendasi Lingkungan Eksekusi (IDE Lokal vs Cloud):**  
+> **Sangat direkomendasikan untuk menjalankan proyek ini menggunakan IDE lokal seperti Visual Studio Code (VS Code)** atau JupyterLab lokal.  
+> **Mengapa tidak disarankan di Google Colab?** Lingkungan cloud virtual machine seperti Google Colab berpotensi menghasilkan variasi numerik minor pada desimal metrik (akibat perbedaan arsitektur thread/multiprocessing library `loky`, optimasi aljabar linear BLAS/LAPACK pada kernel Linux cloud, serta perbedaan default integer bitwidth antara runtime OS). Menjalankan secara lokal di VS Code menjamin seluruh tabel metrik, koefisien korelasi, dan visualisasi menghasilkan angka yang **konsisten** dengan dokumentasi laporan ini.
+
 ### 1. Struktur File & Artefak Repositori
 ```text
 ├── Loan Dataset.csv         # Dataset historis profil kredit pemohon (52.000 baris, 27 kolom)
@@ -49,27 +54,33 @@ Seluruh eksperimen telah dirancang secara modular dan dapat direproduksi secara 
 ```
 
 ### 2. Prasyarat Lingkungan (*Environment Prerequisites*)
-* Python versi 3.10 atau yang lebih baru.
-* Instalasi pustaka yang dibutuhkan:
+* Python versi 3.10 atau 3.11 (direkomendasikan).
+* IDE: **Visual Studio Code (VS Code)** dengan ekstensi resmi **Python** dan **Jupyter** terpasang.
+* Instalasi pustaka pendukung via terminal:
   ```bash
-  pip install numpy pandas scikit-learn matplotlib seaborn jupyter
+  pip install numpy pandas scikit-learn matplotlib seaborn ipykernel
   ```
 
-### 3. Panduan Menjalankan Eksperimen (*Step-by-Step*)
+### 3. Panduan Menjalankan Eksperimen di VS Code (*Step-by-Step*)
 1. **Kloning Repositori:**
+   Buka terminal lokal Anda dan unduh repositori:
    ```bash
    git clone https://github.com/CallMeVinX/machine_learning.git
    cd machine_learning
    ```
-2. **Verifikasi Dataset:**
-   Pastikan file `Loan Dataset.csv` berada di direktori root yang sama dengan file notebook.
-3. **Jalankan Jupyter Notebook:**
+2. **Buka Proyek di VS Code:**
+   Buka folder proyek secara langsung melalui terminal:
    ```bash
-   jupyter notebook machinelearning.ipynb
+   code .
    ```
-   *Notebook juga dapat langsung dibuka dan dijalankan pada Google Colab atau VS Code.*
-4. **Eksekusi Seluruh Sel Notebook:**
-   Pilih menu **Kernel** -> **Restart & Run All** untuk mengeksekusi seluruh sel dari Bagian 1 hingga Bagian 11 secara berurutan. Seluruh proses prapemrosesan, rekayasa fitur, validasi silang 5-Fold, pengujian model ensemble, hingga visualisasi error analysis akan tergenerasi secara otomatis tanpa kebocoran data.
+   *Atau melalui menu GUI VS Code: `File` -> `Open Folder...` -> pilih folder `machine_learning`.*
+3. **Buka File Notebook Eksperimen:**
+   Pada panel *Explorer* di sisi kiri VS Code, klik dan buka file **[`machinelearning.ipynb`](machinelearning.ipynb)**.
+4. **Pilih Python Kernel:**
+   Di pojok kanan atas editor notebook VS Code, klik **Select Kernel** -> pilih lingkungan Python lokal Anda (misalnya `Python 3.10` atau `Python 3.11`).
+5. **Eksekusi Eksperimen Secara Sekuensial:**
+   Klik tombol **"Run All"** pada bilah atas editor notebook (atau gunakan menu `Clear All Outputs` lalu `Run All`).
+   * Seluruh alur eksperimen dari Bagian 1 (Setup & EDA), Bagian 4 (Pipeline Preprocessing), Bagian 5 (Feature Engineering), Bagian 8 (Stratified 5-Fold CV), hingga Bagian 9–11 (Error Analysis & Model Card) akan dieksekusi secara otomatis dari atas ke bawah menghasilkan output yang konsisten.
 
 ---
 

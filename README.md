@@ -1,13 +1,82 @@
 # Proyek Machine Learning: Prediksi Persetujuan Pinjaman (Loan Approval)
-**Executive Technical Report & Production-Grade Documentation**
+### 🏷️ Project ID: `A10 - Persetujuan Pinjaman`
+**Dokumentasi Teknis & Panduan Repositori (UTS Milestone 1)**
 
-Repositori ini memuat dokumentasi komprehensif, implementasi kode *machine learning* berstandar industri perbankan, rekayasa fitur finansial (*domain-driven feature engineering*), pipeline anti-kebocoran data (*leakage-free pipeline*), audit kestabilan validasi silang (Stratified 5-Fold CV), diagnosis mendalam *bias-variance*, seleksi fitur berbasis *Permutation Feature Importance*, pembedahan galat (*Error Analysis*), serta tata kelola pemodelan (*Model Governance*) berbasis *Experiment Tracking Log* dan *Model Card*.
+| Informasi Proyek | Keterangan |
+| :--- | :--- |
+| **Project ID** | **A10 - Persetujuan Pinjaman** |
+| **Mata Kuliah** | Machine Learning (Semester Ganjil TA 2026/2027) |
+| **Judul Proyek** | Prediksi Persetujuan Pinjaman Berbasis Classical Machine Learning dan Rekayasa Rasio Risiko Finansial |
+| **Notebook Eksperimen** | [`machinelearning.ipynb`](machinelearning.ipynb) |
+| **Dataset Sumber** | [`Loan Dataset.csv`](Loan%20Dataset.csv) ([Kaggle Source Link](https://www.kaggle.com/datasets/arbaaztamboli/loan-approval-dataset)) |
+| **Repositori GitHub** | [https://github.com/CallMeVinX/machine_learning](https://github.com/CallMeVinX/machine_learning) |
 
-Seluruh alur analisis tersaji secara berurutan dan dapat direproduksi langsung melalui notebook utama: [machinelearning.ipynb](machinelearning.ipynb).
+#### 👥 Anggota Kelompok:
+1. **Alvin Dinata** — NIM: `231111420`
+2. **James** — NIM: `231111512`
+3. **Vera Nataria** — NIM: `231110030`
+
+---
+
+## 📌 Deskripsi Masalah & Problem Formulation
+
+### 1. Konteks Bisnis & Urgensi Masalah
+Penyaluran fasilitas pinjaman (*kredit*) merupakan pilar bisnis utama sekaligus sumber risiko finansial terbesar bagi institusi perbankan. Evaluasi kelayakan kredit secara manual terhadap puluhan ribu berkas pengajuan berpotensi mengalami bias subjektivitas, waktu pemrosesan yang lambat, serta kegagalan mendeteksi hubungan non-linear antar-atribut finansial pemohon. Dalam konteks keputusan persetujuan kredit, kesalahan prediksi memiliki konsekuensi bisnis yang sangat asimetris:
+* **Risiko Kredit Macet (False Positive / Type I Error):** Meloloskan calon debitur yang sebenarnya berisiko gagal bayar (aktual kelas 0 / Ditolak, namun diprediksi kelas 1 / Disetujui). Kesalahan ini berakibat fatal karena menyebabkan kerugian modal langsung berupa kredit bermasalah (*Non-Performing Loan* / NPL).
+* **Kehilangan Peluang Pendapatan (False Negative / Type II Error):** Menolak calon debitur yang sebenarnya memiliki kapasitas finansial layak (aktual kelas 1 / Disetujui, namun diprediksi kelas 0 / Ditolak). Kesalahan ini menyebabkan hilangnya potensi pendapatan bunga (*opportunity loss*) dan menurunkan kepuasan nasabah.
+
+### 2. Tujuan Proyek
+Membangun sistem pendukung keputusan otomatis (*credit underwriting decision support system*) berbasis **Classical Machine Learning** untuk memprediksi status persetujuan pinjaman secara objektif, berkeadilan (*fairness*), transparan, dan terbebas dari kebocoran data (*data leakage*).
+
+### 3. Pendekatan Machine Learning
+* **Paradigma:** Supervised Learning (Pembelajaran Terawasi).
+* **Tugas Prediktif:** Binary Classification (Klasifikasi Biner) dengan variabel target diskrit `Loan_Approval_Status`:
+  * `1` = Disetujui (*Approved*) — 33.366 observasi (64,17%)
+  * `0` = Ditolak (*Rejected*) — 18.634 observasi (35,83%)
+* **Rasionalisasi Pendekatan Klasik:** Algoritma berbasis pohon dan regresi terstandarisasi menawarkan efisiensi komputasi tinggi pada data tabular heterogen, resisten terhadap multikolinearitas (pada pohon), serta memiliki tingkat transparansi (*white-box*) yang dapat dipertanggungjawabkan kepada regulator perbankan.
+
+---
+
+## 🛠️ Petunjuk Penggunaan Repository (How to Run & Reproduce)
+
+Seluruh eksperimen telah dirancang secara modular dan dapat direproduksi secara mandiri (*end-to-end reproducible*).
+
+### 1. Struktur File & Artefak Repositori
+```text
+├── Loan Dataset.csv         # Dataset historis profil kredit pemohon (52.000 baris, 27 kolom)
+├── machinelearning.ipynb    # Jupyter Notebook eksperimen lengkap (EDA, Preprocessing, Modeling, CV, Evaluasi)
+└── README.md                # Dokumentasi komprehensif proyek, panduan eksekusi, & hasil eksperimen
+```
+
+### 2. Prasyarat Lingkungan (*Environment Prerequisites*)
+* Python versi 3.10 atau yang lebih baru.
+* Instalasi pustaka yang dibutuhkan:
+  ```bash
+  pip install numpy pandas scikit-learn matplotlib seaborn jupyter
+  ```
+
+### 3. Panduan Menjalankan Eksperimen (*Step-by-Step*)
+1. **Kloning Repositori:**
+   ```bash
+   git clone https://github.com/CallMeVinX/machine_learning.git
+   cd machine_learning
+   ```
+2. **Verifikasi Dataset:**
+   Pastikan file `Loan Dataset.csv` berada di direktori root yang sama dengan file notebook.
+3. **Jalankan Jupyter Notebook:**
+   ```bash
+   jupyter notebook machinelearning.ipynb
+   ```
+   *Notebook juga dapat langsung dibuka dan dijalankan pada Google Colab atau VS Code.*
+4. **Eksekusi Seluruh Sel Notebook:**
+   Pilih menu **Kernel** -> **Restart & Run All** untuk mengeksekusi seluruh sel dari Bagian 1 hingga Bagian 11 secara berurutan. Seluruh proses prapemrosesan, rekayasa fitur, validasi silang 5-Fold, pengujian model ensemble, hingga visualisasi error analysis akan tergenerasi secara otomatis tanpa kebocoran data.
 
 ---
 
 ## Daftar Isi Dokumentasi
+- [Identitas Proyek & Anggota Kelompok](#-project-id-a10---persetujuan-pinjaman)
+- [Deskripsi Masalah & Problem Formulation](#-deskripsi-masalah--problem-formulation)
+- [Petunjuk Penggunaan Repository](#️-petunjuk-penggunaan-repository-how-to-run--reproduce)
 1. [Karakteristik & Ringkasan Dataset (Data Understanding & Setup)](#1-karakteristik--ringkasan-dataset-data-understanding--setup)
 2. [Temuan Eksplorasi Data & Driver Utama Keputusan Kredit (EDA)](#2-temuan-eksplorasi-data--driver-utama-keputusan-kredit-eda)
 3. [Temuan Kualitas Data & Anomali Bisnis (Bukti Data Sintetis)](#3-temuan-kualitas-data--anomali-bisnis-bukti-data-sintetis)
@@ -24,8 +93,10 @@ Seluruh alur analisis tersaji secara berurutan dan dapat direproduksi langsung m
 
 ## 1. Karakteristik & Ringkasan Dataset (Data Understanding & Setup)
 
-* **File Sumber:** Loan Dataset.csv
-* **Dimensi Awal:** 52.000 baris observasi pemohon dan 27 kolom variabel awal (diperkaya menjadi 36 kolom pasca-rekayasa fitur dan 53 kolom prediktor pasca-one-hot encoding).
+* **Sumber Dataset Publik:** Kaggle — [Loan Approval Dataset by Arbaaz Tamboli](https://www.kaggle.com/datasets/arbaaztamboli/loan-approval-dataset)
+* **File Dataset:** `Loan Dataset.csv`
+* **Dimensi Awal:** 52.000 baris observasi pemohon dan 27 kolom atribut (15 kolom int64, 2 kolom float64, dan 10 kolom kategorikal teks). Pasca-rekayasa fitur dan encoding bertransformasi menjadi 52 dimensi prediktor (23 numerik + 29 kategori one-hot).
+* **Unit Observasi:** Satu baris merepresentasikan satu pengajuan aplikasi pinjaman oleh seorang pemohon individu (`Applicant_ID`).
 * **Target Biner (Loan_Approval_Status):**
   * **Kelas 1 (Disetujui / Approved):** 33.366 sampel (**64.17%**)
   * **Kelas 0 (Ditolak / Rejected):** 18.634 sampel (**35.83%**)
@@ -246,10 +317,16 @@ Pengujian komparatif menyeluruh (*apple-to-apple*) dijalankan menggunakan data l
 ### 11.2 Model Card Standar Industri
 
 #### Model Details
-- **Pengembang:** Tim Proyek Machine Learning.
-- **Tanggal Rilis:** November 2026.
-- **Versi:** 1.0.0.
-- **Arsitektur:** Random Forest Classifier & Hist Gradient Boosting Classifier (scikit-learn 1.3+).
+- **Project ID:** A10 - Persetujuan Pinjaman
+- **Pengembang / Peneliti:** Tim Proyek A10:
+  1. Alvin Dinata (`231111420`)
+  2. James (`231111512`)
+  3. Vera Nataria (`231110030`)
+- **Institusi / Semester:** Universitas Mikroskil / Semester Ganjil TA 2026/2027
+- **Tanggal Rilis:** November 2026
+- **Versi Model:** 1.0.0 (Tahap UTS Milestone 1)
+- **Arsitektur Model:** Random Forest Classifier & Hist Gradient Boosting Classifier (`scikit-learn 1.3+`)
+- **Lisensi & Dependensi:** Open Source / Python 3.10+, Scikit-Learn, Pandas, NumPy, Matplotlib, Seaborn
 
 #### Intended Use & Users
 - **Kegunaan Utama (*Primary Use*):** Sistem pendukung keputusan underwriting kredit perbankan (*Credit Underwriting Decision Support System*) untuk penyaringan awal kelayakan pemohon pinjaman personal.
